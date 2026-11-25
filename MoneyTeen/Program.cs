@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 
 class Program
 {
@@ -22,7 +23,17 @@ class Program
             Console.WriteLine();
             Console.Write("Escolha uma opcao: ");
 
-            opcao = int.Parse(Console.ReadLine() ?? "0");
+            string entrada = Console.ReadLine() ?? "";
+
+            if (!int.TryParse(entrada, out opcao))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Entrada invalida! Digite um numero.");
+                Console.WriteLine("Pressione ENTER para continuar.");
+                Console.ReadLine();
+
+                continue;
+            }
 
             switch (opcao)
             {
