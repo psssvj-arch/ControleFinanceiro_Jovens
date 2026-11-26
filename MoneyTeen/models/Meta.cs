@@ -1,3 +1,4 @@
+
 namespace MoneyTeen.Models;
 
 public class Meta
@@ -15,14 +16,14 @@ public class Meta
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("O nome da meta é obrigatório.");
-            }
-            if (value.Length > 100)
-            {
-                throw new ArgumentException("O nome deve ter no máximo 100 letras.");
-            }
-            _nome = value.Trim();
+                throw new ArgumentException("O nome da meta e obrigatorio.");
+
+            string nome = value.Trim();
+
+            if (nome.Length > 100)
+                throw new ArgumentException("O nome deve ter no maximo 100 caracteres.");
+
+            _nome = nome;
         }
     }
 
@@ -32,9 +33,8 @@ public class Meta
         set
         {
             if (value <= 0)
-            {
                 throw new ArgumentException("O valor alvo deve ser maior que zero.");
-            }
+
             _valorAlvo = value;
         }
     }
@@ -45,9 +45,8 @@ public class Meta
         set
         {
             if (value < 0)
-            {
-                throw new ArgumentException("O valor atual não pode ser negativo.");
-            }
+                throw new ArgumentException("O valor atual nao pode ser negativo.");
+
             _valorAtual = value;
         }
     }
@@ -58,9 +57,8 @@ public class Meta
         set
         {
             if (value.Date <= DateTime.Today)
-            {
                 throw new ArgumentException("O prazo deve ser uma data futura.");
-            }
+
             _prazo = value.Date;
         }
     }
@@ -68,31 +66,26 @@ public class Meta
     public int UsuarioId { get; set; }
     public Usuario? Usuario { get; set; }
 
-
     public void Depositar(decimal valor)
     {
         if (valor <= 0)
-        {
-            throw new ArgumentException("O depósito deve ser maior que zero.");
-        }
-        _valorAtual = _valorAtual + valor;
-    }
+            throw new ArgumentException("O deposito deve ser maior que zero.");
 
+        _valorAtual += valor;
+    }
 
     public decimal CalcularPercentual()
     {
         if (_valorAlvo == 0)
-        {
             return 0;
-        }
-        decimal percentual = _valorAtual / _valorAlvo * 100;
+
+        decimal percentual = (_valorAtual / _valorAlvo) * 100;
+
         if (percentual > 100)
-        {
             percentual = 100;
-        }
+
         return Math.Round(percentual, 2);
     }
-
 
     public bool EstaConcluida()
     {

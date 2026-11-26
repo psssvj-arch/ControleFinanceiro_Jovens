@@ -1,3 +1,4 @@
+
 namespace MoneyTeen.Models;
 
 public class Categoria
@@ -12,17 +13,16 @@ public class Categoria
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("O nome da categoria é obrigatório.");
-            }
-            if (value.Length > 50)
-            {
-                throw new ArgumentException("O nome deve ter no máximo 50 letras.");
-            }
-            _nome = value.Trim();
+                throw new ArgumentException("O nome da categoria e obrigatorio.");
+
+            string nome = value.Trim();
+
+            if (nome.Length > 50)
+                throw new ArgumentException("O nome deve ter no maximo 50 caracteres.");
+
+            _nome = nome;
         }
     }
-
 
     public List<Transacao> Transacoes { get; set; } = new List<Transacao>();
     public List<Orcamento> Orcamentos { get; set; } = new List<Orcamento>();

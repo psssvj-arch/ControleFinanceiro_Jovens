@@ -1,24 +1,18 @@
 ﻿
-using System;
 using System.Globalization;
-using System.Linq;
-using MoneyTeen.Models;
+using Microsoft.EntityFrameworkCore;
 using MoneyTeen.Data;
+using MoneyTeen.Models;
 
 class Program
 {
     static void Main(string[] args)
     {
-        AppDbContext banco = new AppDbContext();
+        using AppDbContext banco = new AppDbContext();
 
         try
         {
-            if (!banco.Database.CanConnect())
-            {
-                Console.WriteLine("Nao foi possivel conectar ao banco.");
-                Console.ReadLine();
-                return;
-            }
+            banco.Database.Migrate();
 
             CriarCategorias(banco);
 
@@ -38,8 +32,8 @@ class Program
                 Console.WriteLine("5 - Metas de economia");
                 Console.WriteLine("6 - Relatorios");
                 Console.WriteLine("7 - Sair");
-
                 Console.WriteLine();
+
                 opcao = LerNumero("Escolha uma opcao: ");
 
                 if (opcao == 1)
@@ -79,27 +73,30 @@ class Program
         }
         catch (Exception erro)
         {
-            Console.WriteLine("Erro: " + erro.Message);
+            Console.WriteLine("Ocorreu um erro: " + erro.Message);
             Pausar();
-        }
-        finally
-        {
-            banco.Dispose();
         }
     }
 
     static void CriarCategorias(AppDbContext banco)
     {
-        if (banco.Categorias.Any())
-        {
-            return;
-        }
+        string[] nomes = {
+            "Alimentacao",
+            "Transporte",
+            "Lazer",
+            "Estudos",
+            "Outros"
+        };
 
-        banco.Categorias.Add(new Categoria { Nome = "Alimentacao" });
-        banco.Categorias.Add(new Categoria { Nome = "Transporte" });
-        banco.Categorias.Add(new Categoria { Nome = "Lazer" });
-        banco.Categorias.Add(new Categoria { Nome = "Estudos" });
-        banco.Categorias.Add(new Categoria { Nome = "Outros" });
+        foreach (string nome in nomes)
+        {
+            bool existe = banco.Categorias.Any(c => c.Nome == nome);
+
+            if (!existe)
+            {
+                banco.Categorias.Add(new Categoria { Nome = nome });
+            }
+        }
 
         banco.SaveChanges();
     }
@@ -140,6 +137,7 @@ class Program
             {
                 Console.WriteLine(erro.Message);
                 Console.WriteLine("Tente novamente.");
+                Console.WriteLine();
             }
         }
     }
@@ -183,8 +181,8 @@ class Program
         Console.WriteLine("Receitas: R$ " + receitas.ToString("F2"));
         Console.WriteLine("Despesas: R$ " + despesas.ToString("F2"));
         Console.WriteLine("Saldo: R$ " + (receitas - despesas).ToString("F2"));
-
         Console.WriteLine();
+
         Console.WriteLine("1 - Criar orcamento");
         Console.WriteLine("2 - Ver orcamentos");
         Console.WriteLine("3 - Voltar");
@@ -208,17 +206,35 @@ class Program
 
         try
         {
-            Orcamento orcamento = new Orcamento();
-
             Console.Write("Digite o valor limite: R$ ");
-            orcamento.ValorLimite = LerDecimal();
+            decimal valor = LerDecimal();
 
             Categoria categoria = SelecionarCategoria(banco);
 
-            orcamento.Mes = DateTime.Now.Month;
-            orcamento.Ano = DateTime.Now.Year;
+            int mes = DateTime.Now.Month;
+            int ano = DateTime.Now.Year;
+
+            bool existe = banco.Orcamentos.Any(o =>
+                o.UsuarioId == usuario.Id &&
+                o.CategoriaId == categoria.Id &&
+                o.Mes == mes &&
+                o.Ano == ano
+            );
+
+            if (existe)
+            {
+                Console.WriteLine("Ja existe um orcamento para essa categoria neste mes.");
+                Pausar();
+                return;
+            }
+
+            Orcamento orcamento = new Orcamento();
+
+            orcamento.ValorLimite = valor;
             orcamento.CategoriaId = categoria.Id;
             orcamento.UsuarioId = usuario.Id;
+            orcamento.Mes = mes;
+            orcamento.Ano = ano;
 
             banco.Orcamentos.Add(orcamento);
             banco.SaveChanges();
@@ -245,30 +261,29 @@ class Program
         if (orcamentos.Count == 0)
         {
             Console.WriteLine("Nenhum orcamento cadastrado.");
+            Pausar();
+            return;
         }
 
         foreach (Orcamento o in orcamentos)
         {
-            decimal gasto = 0;
-
-            var despesas = banco.Transacoes
-                .Where(t => t.UsuarioId == usuario.Id &&
-                       t.Tipo == TipoTransacao.Despesa &&
-                       t.CategoriaId == o.CategoriaId &&
-                       t.Data.Month == o.Mes &&
-                       t.Data.Year == o.Ano)
-                .ToList();
-
-            foreach (Transacao t in despesas)
-            {
-                gasto += t.Valor;
-            }
+            decimal gasto = banco.Transacoes
+                .Where(t =>
+                    t.UsuarioId == usuario.Id &&
+                    t.Tipo == TipoTransacao.Despesa &&
+                    t.CategoriaId == o.CategoriaId &&
+                    t.Data.Month == o.Mes &&
+                    t.Data.Year == o.Ano)
+                .Select(t => t.Valor)
+                .AsEnumerable()
+                .Sum();
 
             Categoria? categoria = banco.Categorias
                 .FirstOrDefault(c => c.Id == o.CategoriaId);
 
             Console.WriteLine();
             Console.WriteLine("Categoria: " + categoria?.Nome);
+            Console.WriteLine("Mes: " + o.Mes + "/" + o.Ano);
             Console.WriteLine("Limite: R$ " + o.ValorLimite.ToString("F2"));
             Console.WriteLine("Gasto: R$ " + gasto.ToString("F2"));
             Console.WriteLine("Percentual gasto: " + o.CalcularPercentualGasto(gasto) + "%");
@@ -458,6 +473,8 @@ class Program
         if (metas.Count == 0)
         {
             Console.WriteLine("Nenhuma meta cadastrada.");
+            Pausar();
+            return;
         }
 
         foreach (Meta m in metas)
@@ -541,6 +558,7 @@ class Program
 
         var transacoes = banco.Transacoes
             .Where(t => t.UsuarioId == usuario.Id)
+            .OrderByDescending(t => t.Data)
             .ToList();
 
         Console.WriteLine("===== RELATORIOS =====");
@@ -617,12 +635,12 @@ class Program
                 entrada,
                 NumberStyles.Number,
                 CultureInfo.GetCultureInfo("pt-BR"),
-                out valor))
+                out valor) && valor > 0)
             {
                 return valor;
             }
 
-            Console.Write("Valor invalido! Digite novamente: R$ ");
+            Console.Write("Valor invalido! Digite um valor maior que zero: R$ ");
         }
     }
 
