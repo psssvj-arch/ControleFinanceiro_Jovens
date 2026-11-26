@@ -1,4 +1,3 @@
-
 namespace MoneyTeen.Models;
 
 public class Usuario
