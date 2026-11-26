@@ -14,7 +14,8 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var conexao = Environment.GetEnvironmentVariable("MONEYTEEN_DB")
-            ?? "server=localhost;database=moneyteen;user=root;password=SUA_SENHA;";
+            ?? "Server=localhost;Port=3306;Database=MoneyTeen;User=root;Password=Senac2026;"
+ ;
 
         optionsBuilder.UseMySql(conexao, ServerVersion.AutoDetect(conexao));
     }
