@@ -1,4 +1,3 @@
-
 namespace MoneyTeen.Models;
 
 public class Usuario
@@ -57,4 +56,15 @@ public class Usuario
     public List<Transacao> Transacoes { get; set; } = new List<Transacao>();
     public List<Meta> Metas { get; set; } = new List<Meta>();
     public List<Orcamento> Orcamentos { get; set; } = new List<Orcamento>();
+
+    public void Editar(string nome, string email)
+    {
+        Usuario temporario = new Usuario();
+
+        temporario.Nome = nome;
+        temporario.Email = email;
+
+        Nome = temporario.Nome;
+        Email = temporario.Email;
+    }
 }

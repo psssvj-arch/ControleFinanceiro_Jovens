@@ -1,4 +1,3 @@
-
 namespace MoneyTeen.Models;
 
 public enum TipoTransacao
@@ -81,5 +80,21 @@ public class Transacao
     public bool EhReceita()
     {
         return Tipo == TipoTransacao.Receita;
+    }
+
+    public void Editar(string descricao, decimal valor, DateTime data, TipoTransacao tipo, int categoriaId)
+    {
+        Transacao temporaria = new Transacao();
+
+        temporaria.Descricao = descricao;
+        temporaria.Valor = valor;
+        temporaria.Data = data;
+        temporaria.Tipo = tipo;
+
+        Descricao = temporaria.Descricao;
+        Valor = temporaria.Valor;
+        Data = temporaria.Data;
+        Tipo = temporaria.Tipo;
+        CategoriaId = categoriaId;
     }
 }

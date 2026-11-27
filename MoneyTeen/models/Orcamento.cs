@@ -1,4 +1,3 @@
-
 namespace MoneyTeen.Models;
 
 public class Orcamento
@@ -62,5 +61,19 @@ public class Orcamento
     public bool Estourou(decimal totalGasto)
     {
         return totalGasto > _valorLimite;
+    }
+
+    public void Editar(decimal valorLimite, int mes, int ano, int categoriaId)
+    {
+        Orcamento temporario = new Orcamento();
+
+        temporario.ValorLimite = valorLimite;
+        temporario.Mes = mes;
+        temporario.Ano = ano;
+
+        ValorLimite = temporario.ValorLimite;
+        Mes = temporario.Mes;
+        Ano = temporario.Ano;
+        CategoriaId = categoriaId;
     }
 }

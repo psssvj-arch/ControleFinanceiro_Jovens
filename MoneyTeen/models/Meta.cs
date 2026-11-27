@@ -1,4 +1,3 @@
-
 namespace MoneyTeen.Models;
 
 public class Meta
@@ -90,5 +89,20 @@ public class Meta
     public bool EstaConcluida()
     {
         return _valorAtual >= _valorAlvo;
+    }
+
+    public void Editar(string nome, decimal valorAlvo, decimal valorAtual, DateTime prazo)
+    {
+        Meta temporaria = new Meta();
+
+        temporaria.Nome = nome;
+        temporaria.ValorAlvo = valorAlvo;
+        temporaria.ValorAtual = valorAtual;
+        temporaria.Prazo = prazo;
+
+        Nome = temporaria.Nome;
+        ValorAlvo = temporaria.ValorAlvo;
+        ValorAtual = temporaria.ValorAtual;
+        Prazo = temporaria.Prazo;
     }
 }

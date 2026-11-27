@@ -1,4 +1,3 @@
-
 namespace MoneyTeen.Models;
 
 public class Categoria
@@ -26,4 +25,13 @@ public class Categoria
 
     public List<Transacao> Transacoes { get; set; } = new List<Transacao>();
     public List<Orcamento> Orcamentos { get; set; } = new List<Orcamento>();
+
+    public void Editar(string nome)
+    {
+        Categoria temporaria = new Categoria();
+
+        temporaria.Nome = nome;
+
+        Nome = temporaria.Nome;
+    }
 }
