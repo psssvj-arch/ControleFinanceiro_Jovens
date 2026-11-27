@@ -1,0 +1,6 @@
+@MoneyTeen.Web_HostAddress = http://localhost:5047
+
+GET {{MoneyTeen.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

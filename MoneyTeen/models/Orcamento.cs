@@ -27,7 +27,7 @@ public class Orcamento
         set
         {
             if (value < 1 || value > 12)
-                throw new ArgumentException("O mês deve estar entre 1 e 12.");
+                throw new ArgumentException("O mes deve estar entre 1 e 12.");
 
             _mes = value;
         }
@@ -39,21 +39,18 @@ public class Orcamento
         set
         {
             if (value < 2000 || value > 2100)
-                throw new ArgumentException("Ano inválido.");
+                throw new ArgumentException("Ano invalido.");
 
             _ano = value;
         }
     }
 
-
     public int CategoriaId { get; set; }
     public Categoria? Categoria { get; set; }
-
 
     public int UsuarioId { get; set; }
     public Usuario? Usuario { get; set; }
 
-  
     public decimal CalcularPercentualGasto(decimal totalGasto)
     {
         if (_valorLimite == 0)
@@ -61,7 +58,6 @@ public class Orcamento
 
         return Math.Round((totalGasto / _valorLimite) * 100, 2);
     }
-
 
     public bool Estourou(decimal totalGasto)
     {

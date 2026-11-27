@@ -14,9 +14,17 @@ public class Usuario
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("O nome é obrigatório.");
+                throw new ArgumentException("O nome e obrigatorio.");
 
-            _nome = value.Trim();
+            string nome = value.Trim();
+
+            if (nome.Any(char.IsDigit))
+                throw new ArgumentException("O nome nao pode conter numeros.");
+
+            if (nome.Length < 2 || nome.Length > 100)
+                throw new ArgumentException("O nome deve ter entre 2 e 100 caracteres.");
+
+            _nome = nome;
         }
     }
 
@@ -26,13 +34,21 @@ public class Usuario
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("O e-mail é obrigatório.");
+                throw new ArgumentException("O e-mail e obrigatorio.");
 
             string email = value.Trim();
+
             int arroba = email.IndexOf('@');
 
-            if (arroba <= 0 || !email.Substring(arroba + 1).Contains('.') || email.EndsWith('.'))
-                throw new ArgumentException("E-mail inválido.");
+            if (arroba <= 0 ||
+                arroba != email.LastIndexOf('@') ||
+                email.Contains(' ') ||
+                email.EndsWith('.') ||
+                email.Substring(arroba + 1).IndexOf('.') <= 0 ||
+                email.Substring(arroba + 1).EndsWith('.'))
+            {
+                throw new ArgumentException("E-mail invalido.");
+            }
 
             _email = email;
         }
